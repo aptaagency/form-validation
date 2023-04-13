@@ -1,0 +1,56 @@
+// Get all the input fields on the form that have the "data-url" attribute set to "true"
+const inputFields = document.querySelectorAll('input[type="text"][data-url="true"]');
+
+// Define a regular expression for matching URLs
+const urlRegex = /^(https?|ftp):\/\/[^\s/$.?#].[^\s]*$/i;
+
+// Add an event listener for when the user changes the value of an input field
+for (let i = 0; i < inputFields.length; i++) {
+  let timeoutId;
+  inputFields[i].addEventListener('input', function(event) {
+    // Clear any previously set timeouts
+    clearTimeout(timeoutId);
+    // Set a timeout to check the input value after 500 milliseconds
+    timeoutId = setTimeout(function() {
+      // Check if the input value matches the URL regex
+      if (!urlRegex.test(inputFields[i].value)) {
+        // Show the error message for this input field
+        const errorMessage = inputFields[i].getAttribute('data-url-error-message');
+        const errorElement = inputFields[i].nextElementSibling;
+        if (errorElement && errorElement.classList.contains('error-message')) {
+          errorElement.textContent = errorMessage;
+          errorElement.style.display = 'block';
+        }
+      } else {
+        // Hide the error message for this input field if the value matches the URL regex
+        const errorElement = inputFields[i].nextElementSibling;
+        if (errorElement && errorElement.classList.contains('error-message')) {
+          errorElement.style.display = 'none';
+        }
+      }
+    }, 500);
+  });
+}
+
+// Add an event listener for when the user submits the form
+document.querySelector('form').addEventListener('submit', function(event) {
+  // Loop through each input field and check if the value matches the URL regex
+  let hasError = false;
+  for (let i = 0; i < inputFields.length; i++) {
+    if (!urlRegex.test(inputFields[i].value)) {
+      // If the input value doesn't match, set the "hasError" flag to true
+      hasError = true;
+      // Show the error message for this input field
+      const errorMessage = inputFields[i].getAttribute('data-url-error-message');
+      const errorElement = inputFields[i].nextElementSibling;
+      if (errorElement && errorElement.classList.contains('error-message')) {
+        errorElement.textContent = errorMessage;
+        errorElement.style.display = 'block';
+      }
+    }
+  }
+  // If there's at least one invalid input, prevent the form from submitting
+  if (hasError) {
+    event.preventDefault();
+  }
+});
